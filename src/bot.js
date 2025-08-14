@@ -127,7 +127,7 @@ async function shortenUrl(chatId, url) {
   }
 
   try {
-    const apiUrl = `https://jalwagame.42web.io.live/api?api=${adlinkflyToken}&url=${encodeURIComponent(url)}`;
+    const apiUrl = `https://jalwagame.42web.io/api?api=${adlinkflyToken}&url=${encodeURIComponent(url)}`;
     const response = await axios.get(apiUrl);
     return response.data.shortenedUrl;
   } catch (error) {
