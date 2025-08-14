@@ -30,7 +30,7 @@ bot.onText(/\/start/, (msg) => {
     + 'If you haven\'t set your Indishort API token yet, use the command:\n/setapi YOUR_Indishort_API_TOKEN\n\n'
     + 'How To Use Me 👇👇 \n\n'
   + '✅1. Got To jalwagame.42web.io & Complete Your Registration.\n\n'
-  + '✅2. Then Copy Your API Key from here https://indishort.live/member/tools/api Copy Your API Only. \n\n'
+  + '✅2. Then Copy Your API Key from here https://jalwagame.42web.io/member/tools/api Copy Your API Only. \n\n'
   + '✅3. Then add your API using command /setapi \n\n' 
   + 'Example: /setapi c49399f821fc020161bc2a31475ec59f35ae5b4\n\n'
   + '⚠️ You must have to send link with https:// or http://\n\n'
