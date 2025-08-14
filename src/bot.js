@@ -22,20 +22,20 @@ const bot = new TelegramBot(botToken, { polling: true });
 // Handle /start command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const username = msg.from.username;
+  const username = msg.from.username || "User";
   const welcomeMessage = `😇 Hello, ${username}!\n\n`
     + 'Welcome to the Indishort URL Shortener Bot!\n'
-    + 'You can use this bot to shorten URLs using the jawlafly.live api service.\n\n'
+    + 'You can use this bot to shorten URLs using the jalwagame.42web.io API service.\n\n'
     + 'To shorten a URL, just type or paste the URL directly in the chat, and the bot will provide you with the shortened URL.\n\n'
     + 'If you haven\'t set your Indishort API token yet, use the command:\n/setapi YOUR_Indishort_API_TOKEN\n\n'
     + 'How To Use Me 👇👇 \n\n'
-  + '✅1. Got To jalwagame.42web.io & Complete Your Registration.\n\n'
-  + '✅2. Then Copy Your API Key from here https://jalwagame.42web.io/member/tools/api Copy Your API Only. \n\n'
-  + '✅3. Then add your API using command /setapi \n\n' 
-  + 'Example: /setapi c49399f821fc020161bc2a31475ec59f35ae5b4\n\n'
-  + '⚠️ You must have to send link with https:// or http://\n\n'
-  + 'Made with ❤️ By: @rahitx';
-  + '**Now, go ahead and try it out!**';
+    + '✅1. Go to https://jalwagame.42web.io & complete your registration.\n\n'
+    + '✅2. Copy your API key from: https://jalwagame.42web.io/member/tools/api\n\n'
+    + '✅3. Then add your API using command:\n/setapi YOUR_API_KEY\n\n'
+    + 'Example: /setapi c49399f821fc020161bc2a31475ec59f35ae5b4\n\n'
+    + '⚠️ You must send link with https:// or http://\n\n'
+    + 'Made with ❤️ By: @rahitx\n\n'
+    + '**Now, go ahead and try it out!**';
 
   bot.sendMessage(chatId, welcomeMessage);
 });
@@ -45,60 +45,49 @@ bot.onText(/\/setapi (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
   const userToken = match[1].trim();
 
-  // Save the user's AdlinkFly API token to the database
+  // Save the user's API token to the database
   saveUserToken(chatId, userToken);
 
-  const response = `Your Indishort API token set successfully. ✅️✅️ Your token is: ${userToken}`;
+  const response = `Your Indishort API token set successfully ✅\nYour token is: ${userToken}`;
   bot.sendMessage(chatId, response);
 });
 
-// Listen for any message (not just commands)
+// Listen for any message
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
 
-  // Check if message contains text or forwarded content
+  // Check text or caption
   if (msg.text || msg.caption) {
     const text = msg.text || msg.caption;
     const links = extractLinks(text);
 
     if (links.length > 0) {
       const shortenedLinks = await shortenMultipleLinks(chatId, links);
-
-      // Replace original links in the text
       const updatedText = replaceLinksInText(text, links, shortenedLinks);
-
-      bot.sendMessage(chatId, updatedText, {
-        reply_to_message_id: msg.message_id,
-      });
+      bot.sendMessage(chatId, updatedText, { reply_to_message_id: msg.message_id });
     }
   }
 
-  // If message has media with caption, handle it
+  // If message has media
   if (msg.photo || msg.video || msg.document) {
     const caption = msg.caption || '';
     const links = extractLinks(caption);
 
     if (links.length > 0) {
       const shortenedLinks = await shortenMultipleLinks(chatId, links);
-
-      // Replace original links in the caption
       const updatedCaption = replaceLinksInText(caption, links, shortenedLinks);
-
-      bot.sendMessage(chatId, updatedCaption, {
-        reply_to_message_id: msg.message_id,
-      });
+      bot.sendMessage(chatId, updatedCaption, { reply_to_message_id: msg.message_id });
     }
   }
 });
 
-// Function to extract URLs from a given text
+// Extract URLs
 function extractLinks(text) {
   const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})([^\s]*)/g;
-  const links = [...text.matchAll(urlRegex)].map(match => match[0]);
-  return links;
+  return [...text.matchAll(urlRegex)].map(match => match[0]);
 }
 
-// Function to replace original links with shortened links in the text
+// Replace links
 function replaceLinksInText(text, originalLinks, shortenedLinks) {
   let updatedText = text;
   originalLinks.forEach((link, index) => {
@@ -107,53 +96,61 @@ function replaceLinksInText(text, originalLinks, shortenedLinks) {
   return updatedText;
 }
 
-// Function to shorten multiple links
+// Shorten multiple links
 async function shortenMultipleLinks(chatId, links) {
   const shortenedLinks = [];
   for (const link of links) {
     const shortenedLink = await shortenUrl(chatId, link);
-    shortenedLinks.push(shortenedLink || link); // Use original link if shortening fails
+    shortenedLinks.push(shortenedLink || link);
   }
   return shortenedLinks;
 }
 
-// Function to shorten a single URL
+// Shorten single URL
 async function shortenUrl(chatId, url) {
-  const adlinkflyToken = getUserToken(chatId);
+  const apiToken = getUserToken(chatId);
 
-  if (!adlinkflyToken) {
-    bot.sendMessage(chatId, 'Please set up 🎃 your INDISHORT API token first. 🔮 Use the command: /setapi YOUR_INDISHORT_API_TOKEN');
+  if (!apiToken) {
+    bot.sendMessage(chatId, 'Please set up 🎃 your INDISHORT API token first.\nUse: /setapi YOUR_API_TOKEN');
     return null;
   }
 
   try {
-    const apiUrl = `https://jalwagame.42web.io/api?api=${adlinkflyToken}&url=${encodeURIComponent(url)}`;
+    const apiUrl = `https://jalwagame.42web.io/api?api=${apiToken}&url=${encodeURIComponent(url)}`;
     const response = await axios.get(apiUrl);
-    return response.data.shortenedUrl;
+
+    console.log('API URL:', apiUrl);
+    console.log('API Response:', response.data);
+
+    if (response.data.status === 'success') {
+      return response.data.shortenedUrl || response.data.shortlink || null;
+    } else {
+      return null;
+    }
   } catch (error) {
-    console.error('Shorten URL Error:', error);
+    console.error('Shorten URL Error:', error.response ? error.response.data : error);
     return null;
   }
 }
 
-// Function to save user's AdlinkFly API token
+// Save API token
 function saveUserToken(chatId, token) {
   const dbData = getDatabaseData();
   dbData[chatId] = token;
-  fs.writeFileSync('./src/database.json', JSON.stringify(dbData, null, 2));
+  fs.writeFileSync('database.json', JSON.stringify(dbData, null, 2));
 }
 
-// Function to retrieve user's AdlinkFly API token
+// Get API token
 function getUserToken(chatId) {
   const dbData = getDatabaseData();
   return dbData[chatId];
 }
 
-// Function to read the database file
+// Read database
 function getDatabaseData() {
   try {
-    return JSON.parse(fs.readFileSync('./src/database.json', 'utf8'));
-  } catch (error) {
+    return JSON.parse(fs.readFileSync('database.json', 'utf8'));
+  } catch {
     return {};
   }
 }
